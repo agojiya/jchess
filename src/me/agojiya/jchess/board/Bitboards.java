@@ -35,4 +35,21 @@ public enum Bitboards {
         return this.board;
     }
 
+    /**
+     * Formats the provided long variable that represents a bitboard into a board that is easier to visualize and
+     * provides the result as a string.
+     *
+     * @param board a representation of a bitboard
+     * @return a {@link String} value representing the formatted bitboard
+     */
+    public static String toString(final long board) {
+        final String boardStr = String.format("%64s", Long.toBinaryString(board)).replace(' ', '0').replace('0', '-');
+        final StringBuilder result = new StringBuilder();
+        for (short i = 7; i >= 0; i--) {
+            result.append(boardStr.substring(i * 8, (i + 1) * 8).replace("", " "));
+            result.append('\n');
+        }
+        return result.toString();
+    }
+
 }
