@@ -27,9 +27,9 @@ public enum Bitboards {
     }
 
     /**
-     * Provides the starting board position as a native long value.
+     * Provides the starting board position.
      *
-     * @return the starting board position
+     * @return a {@link Long} value representing a bitboard
      */
     public long getBoard() {
         return this.board;
@@ -43,7 +43,8 @@ public enum Bitboards {
      * @return a {@link String} value representing the formatted bitboard
      */
     public static String toString(final long board) {
-        final String boardStr = String.format("%64s", Long.toBinaryString(board)).replace(' ', '0').replace('0', '-');
+        final String boardStr = String.format("%64s", Long.toBinaryString(board)).replace(' ', '0')
+                .replace('0', '-');
         final StringBuilder result = new StringBuilder();
         for (short i = 7; i >= 0; i--) {
             result.append(boardStr.substring(i * 8, (i + 1) * 8).replace("", " "));

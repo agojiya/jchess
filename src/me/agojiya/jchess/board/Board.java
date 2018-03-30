@@ -7,7 +7,7 @@ package me.agojiya.jchess.board;
  */
 public class Board {
 
-    private final Position POSITION = new Position();
+    private final Pieces PIECES = new Pieces();
 
     // TODO: Handle higher level operations such as searching
 
