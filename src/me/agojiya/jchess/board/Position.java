@@ -59,8 +59,7 @@ public class Position {
      * @return a {@link Long} value representing the bitboard
      */
     public long toBitboard() {
-        // TODO: Calculate and return the bitboard
-        return 0L;
+        return (1L << file_int) << (8 * (rank - 1));
     }
 
 }
