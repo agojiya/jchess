@@ -53,4 +53,14 @@ public class Position {
         return file;
     }
 
+    /**
+     * Provides a bitboard in which the only activated bit represents this position.
+     *
+     * @return a {@link Long} value representing the bitboard
+     */
+    public long toBitboard() {
+        // TODO: Calculate and return the bitboard
+        return 0L;
+    }
+
 }

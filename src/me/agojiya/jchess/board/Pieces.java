@@ -1,5 +1,7 @@
 package me.agojiya.jchess.board;
 
+import java.util.Arrays;
+
 /**
  * A class representing the positions of the pieces of a complete chess board.
  *
@@ -7,20 +9,7 @@ package me.agojiya.jchess.board;
  */
 public class Pieces {
 
-    private final long[] PIECE_BITBOARDS = new long[]{
-            Bitboards.WHITE_PAWNS.getBoard(),
-            Bitboards.BLACK_PAWNS.getBoard(),
-            Bitboards.WHITE_ROOKS.getBoard(),
-            Bitboards.BLACK_ROOKS.getBoard(),
-            Bitboards.WHITE_KNIGHTS.getBoard(),
-            Bitboards.BLACK_KNIGHTS.getBoard(),
-            Bitboards.WHITE_BISHOPS.getBoard(),
-            Bitboards.BLACK_BISHOPS.getBoard(),
-            Bitboards.WHITE_QUEEN.getBoard(),
-            Bitboards.BLACK_QUEEN.getBoard(),
-            Bitboards.WHITE_KING.getBoard(),
-            Bitboards.BLACK_KING.getBoard()
-    };
+    private long[] PIECE_BITBOARDS = Arrays.stream(Bitboards.values()).mapToLong(Bitboards::getBoard).toArray();
 
     /**
      * Constructor to initialize the pieces as the starting positions.
@@ -32,40 +21,42 @@ public class Pieces {
     /**
      * Constructor to initialize the positions of each piece type individually.
      *
-     * @param whitePawns   a bitboard representation of the white pawns
-     * @param blackPawns   a bitboard representation of the black pawns
-     * @param whiteRooks   a bitboard representation of the white rooks
-     * @param blackRooks   a bitboard representation of the black rooks
-     * @param whiteKnights a bitboard representation of the white knights
-     * @param blackKnights a bitboard representation of the black knights
-     * @param whiteBishops a bitboard representation of the white bishops
-     * @param blackBishops a bitboard representation of the black bishops
-     * @param whiteQueen   a bitboard representation of the white queen
-     * @param blackQueen   a bitboard representation of the black queen
-     * @param whiteKing    a bitboard representation of the white king
-     * @param blackKing    a bitboard representation of the black king
+     * @param bitboards bitboard representations of each piece
+     * @throws IllegalArgumentException the amount of bitboards provided does not correspond to the types of pieces
      */
-    public Pieces(final long whitePawns, final long blackPawns, final long whiteRooks, final long blackRooks,
-                  final long whiteKnights, final long blackKnights, final long whiteBishops, final long blackBishops,
-                  final long whiteQueen, final long blackQueen, final long whiteKing, final long blackKing) {
-        this.PIECE_BITBOARDS[0] = whitePawns;
-        this.PIECE_BITBOARDS[1] = blackPawns;
-        this.PIECE_BITBOARDS[2] = whiteRooks;
-        this.PIECE_BITBOARDS[3] = blackRooks;
-        this.PIECE_BITBOARDS[4] = whiteKnights;
-        this.PIECE_BITBOARDS[5] = blackKnights;
-        this.PIECE_BITBOARDS[6] = whiteBishops;
-        this.PIECE_BITBOARDS[7] = blackBishops;
-        this.PIECE_BITBOARDS[8] = whiteQueen;
-        this.PIECE_BITBOARDS[9] = blackQueen;
-        this.PIECE_BITBOARDS[10] = whiteKing;
-        this.PIECE_BITBOARDS[11] = blackKing;
+    public Pieces(final long... bitboards) throws IllegalArgumentException {
+        if (bitboards.length != 12) {
+            throw new IllegalArgumentException("Amount of provided bitboards is not 12 (number of chess pieces)");
+        }
+        this.PIECE_BITBOARDS = bitboards;
     }
 
-    public long getPseudoLegalMoves(final Piece targetPiece, final Position posiiton) {
+    /**
+     * Generates pseudo-legal moves for any provided {@link Piece} type at any provided valid {@link Position}.
+     *
+     * @param targetPiece the piece type for which to find pseudo-legal moves
+     * @param position the position for which to find pseudo-legal moves
+     * @throws IllegalArgumentException the piece at the provided position is not equal to the provided piece type
+     * @return a {@link Long} value representing a bitboard
+     */
+    public long getPseudoLegalMoves(final Piece targetPiece, final Position position) {
+        if ((this.PIECE_BITBOARDS[getIndex(targetPiece)] & position.toBitboard()) == 0L) {
+            throw new IllegalArgumentException("The provided piece type was not found at the provided position");
+        }
         // TODO: Calculate pseudo-legal moves based on the Piece type if the piece exists at the provided position
         // TODO: Check for legality
         return 0L;
+    }
+
+    /**
+     * Provides the index of the provided {@link Piece} type in the bitboard array representing each piece.
+     *
+     * @see Pieces#PIECE_BITBOARDS
+     * @param targetPiece the piece for which the index should be calculated
+     * @return an {@link Integer} value representing the index
+     */
+    private int getIndex(final Piece targetPiece) {
+        return Arrays.asList(Piece.values()).indexOf(targetPiece);
     }
 
     /**
