@@ -40,8 +40,18 @@ public class Pieces {
      * @return a {@link Long} value representing a bitboard
      */
     public long getPseudoLegalMoves(final Piece targetPiece, final Position position) {
-        if ((this.PIECE_BITBOARDS[getIndex(targetPiece)] & position.toBitboard()) == 0L) {
+        final long pieceBitboard = this.PIECE_BITBOARDS[getIndex(targetPiece)] & position.toBitboard();
+        if (pieceBitboard == 0L) {
             throw new IllegalArgumentException("The provided piece type was not found at the provided position");
+        }
+        if (targetPiece == Piece.BLACK_PAWN || targetPiece == Piece.WHITE_PAWN) {
+            long result = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 8 : pieceBitboard >> 8;
+            if (position.getRank() == 2 || position.getRank() == 7) {
+                result &= (targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 16 : pieceBitboard >> 16);
+            }
+            final long intersections = getAll() & result;
+            result ^= intersections;
+            return result;
         }
         // TODO: Calculate pseudo-legal moves based on the Piece type if the piece exists at the provided position
         // TODO: Check for legality
@@ -65,10 +75,11 @@ public class Pieces {
      * @return a {@link Long} value representing a bitboard
      */
     private long getAll() {
-        return this.PIECE_BITBOARDS[0] & this.PIECE_BITBOARDS[1] & this.PIECE_BITBOARDS[2] & this.PIECE_BITBOARDS[3]
-                & this.PIECE_BITBOARDS[4] & this.PIECE_BITBOARDS[5] & this.PIECE_BITBOARDS[6] & this.PIECE_BITBOARDS[7]
-                & this.PIECE_BITBOARDS[8] & this.PIECE_BITBOARDS[9] & this.PIECE_BITBOARDS[10]
-                & this.PIECE_BITBOARDS[11];
+        long all = 0L;
+        for (final long pieceBitboard : this.PIECE_BITBOARDS) {
+            all &= pieceBitboard;
+        }
+        return all;
     }
 
 }
