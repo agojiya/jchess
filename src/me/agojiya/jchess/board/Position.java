@@ -9,30 +9,21 @@ public class Position {
 
     private static final int FILE_A_INT = (int) 'a';
 
-    private int rank;
     private char file;
+    private int rank;
 
     private int file_int;
 
     /**
      * Constructor to initialize a position on the board.
      *
-     * @param rank the rank of the position
      * @param file the file of the position
+     * @param rank the rank of the position
      */
-    public Position(final int rank, final char file) {
-        this.rank = rank;
+    public Position(final char file, final int rank) {
         this.file = file;
         this.file_int = ((int) file) - FILE_A_INT;
-    }
-
-    /**
-     * Provides the rank of the position.
-     *
-     * @return an {@link Integer} representing the rank
-     */
-    public int getRank() {
-        return rank;
+        this.rank = rank;
     }
 
     /**
@@ -42,6 +33,15 @@ public class Position {
      */
     public int getFile() {
         return file_int;
+    }
+
+    /**
+     * Provides the rank of the position.
+     *
+     * @return an {@link Integer} representing the rank
+     */
+    public int getRank() {
+        return rank;
     }
 
     /**
