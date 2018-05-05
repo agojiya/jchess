@@ -45,12 +45,17 @@ public class Pieces {
             throw new IllegalArgumentException("The provided piece type was not found at the provided position");
         }
         if (targetPiece == Piece.BLACK_PAWN || targetPiece == Piece.WHITE_PAWN) {
-            long result = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 8 : pieceBitboard >> 8;
+            final long singleStep = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 8 : pieceBitboard >> 8,
+                    doubleStep = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 16 : pieceBitboard >> 16;
+            long result = singleStep;
             if (position.getRank() == 2 || position.getRank() == 7) {
-                result &= (targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 16 : pieceBitboard >> 16);
+                result &= doubleStep;
             }
             final long intersections = getAll() & result;
             result ^= intersections;
+            if ((result & singleStep) == 0L) {
+                result = 0L;
+            }
             return result;
         }
         // TODO: Calculate pseudo-legal moves based on the Piece type if the piece exists at the provided position
