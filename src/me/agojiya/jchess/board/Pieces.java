@@ -40,6 +40,7 @@ public class Pieces {
      * @return a {@link Long} value representing a bitboard
      */
     public long getPseudoLegalMoves(final Piece targetPiece, final Position position) {
+        // TODO: Moves that involve taking over a piece
         final long pieceBitboard = this.PIECE_BITBOARDS[getIndex(targetPiece)] & position.toBitboard();
         if (pieceBitboard == 0L) {
             throw new IllegalArgumentException("The provided piece type was not found at the provided position");
@@ -49,7 +50,7 @@ public class Pieces {
                     doubleStep = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 16 : pieceBitboard >> 16;
             long result = singleStep;
             if (position.getRank() == 2 || position.getRank() == 7) {
-                result &= doubleStep;
+                result ^= doubleStep;
             }
             final long intersections = getAll() & result;
             result ^= intersections;
@@ -58,8 +59,6 @@ public class Pieces {
             }
             return result;
         }
-        // TODO: Calculate pseudo-legal moves based on the Piece type if the piece exists at the provided position
-        // TODO: Check for legality
         return 0L;
     }
 
@@ -82,7 +81,7 @@ public class Pieces {
     private long getAll() {
         long all = 0L;
         for (final long pieceBitboard : this.PIECE_BITBOARDS) {
-            all &= pieceBitboard;
+            all ^= pieceBitboard;
         }
         return all;
     }
