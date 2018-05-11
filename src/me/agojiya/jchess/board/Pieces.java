@@ -46,17 +46,25 @@ public class Pieces {
             throw new IllegalArgumentException("The provided piece type was not found at the provided position");
         }
         if (targetPiece == Piece.BLACK_PAWN || targetPiece == Piece.WHITE_PAWN) {
-            final long singleStep = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 8 : pieceBitboard >> 8,
-                    doubleStep = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 16 : pieceBitboard >> 16;
-            long result = singleStep;
+            final long SINGLE_STEP = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 8 : pieceBitboard >> 8,
+                    DOUBLE_STEP = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 16 : pieceBitboard >> 16;
+            long result = SINGLE_STEP;
             if (position.getRank() == 2 || position.getRank() == 7) {
-                result ^= doubleStep;
+                result ^= DOUBLE_STEP;
             }
             final long intersections = getAll() & result;
             result ^= intersections;
-            if ((result & singleStep) == 0L) {
+            if ((result & SINGLE_STEP) == 0L) {
                 result = 0L;
             }
+            return result;
+        } else if (targetPiece == Piece.BLACK_KNIGHT || targetPiece == Piece.WHITE_KNIGHT) {
+            final long NW_SHORT = pieceBitboard << (8 - 2), NW_LONG = pieceBitboard << (8 + 7),
+                    NE_SHORT = pieceBitboard << (8 + 2), NE_LONG = pieceBitboard << (8 + 9),
+                    SW_SHORT = pieceBitboard >> (8 - 2), SW_LONG = pieceBitboard >> (8 + 7),
+                    SE_SHORT = pieceBitboard >> (8 + 2), SE_LONG = pieceBitboard >> (8 + 9);
+            long result = NW_SHORT ^ NW_LONG ^ NE_SHORT ^ NE_LONG ^ SW_SHORT ^ SW_LONG ^ SE_SHORT ^ SE_LONG;
+            // TODO: Handle intersections. Unlike pawns, knights can take out pieces (at intersections).
             return result;
         }
         return 0L;
