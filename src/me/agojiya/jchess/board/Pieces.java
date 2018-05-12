@@ -35,9 +35,9 @@ public class Pieces {
      * Generates pseudo-legal moves for any provided {@link Piece} type at any provided valid {@link Position}.
      *
      * @param targetPiece the piece type for which to find pseudo-legal moves
-     * @param position the position for which to find pseudo-legal moves
-     * @throws IllegalArgumentException the piece at the provided position is not equal to the provided piece type
+     * @param position    the position for which to find pseudo-legal moves
      * @return a {@link Long} value representing a bitboard
+     * @throws IllegalArgumentException the piece at the provided position is not equal to the provided piece type
      */
     public long getPseudoLegalMoves(final Piece targetPiece, final Position position) {
         // TODO: Moves that involve taking over a piece
@@ -64,9 +64,12 @@ public class Pieces {
                     SW_SHORT = pieceBitboard >>> (8 + 2), SW_LONG = pieceBitboard >>> (8 + 9),
                     SE_SHORT = pieceBitboard >>> (8 - 2), SE_LONG = pieceBitboard >>> (8 + 7);
             final int inlineIndex = Long.numberOfTrailingZeros(pieceBitboard) % 8;
-            long result = (inlineIndex >= 2 ? NW_SHORT ^ SW_SHORT : 0L) ^ (inlineIndex >= 1 ? NW_LONG ^ SW_LONG: 0L) ^
+            long result = (inlineIndex >= 2 ? NW_SHORT ^ SW_SHORT : 0L) ^ (inlineIndex >= 1 ? NW_LONG ^ SW_LONG : 0L) ^
                     (inlineIndex <= 5 ? NE_SHORT ^ SE_SHORT : 0L) ^ (inlineIndex <= 6 ? NE_LONG ^ SE_LONG : 0L);
-            // TODO: Handle intersections. Unlike pawns, knights can take out pieces (at intersections).
+            final long team_intersections = result &
+                    (targetPiece == Piece.BLACK_KNIGHT ? getAllBlack() : getAllWhite());
+            result ^= team_intersections;
+            // TODO: Handle opposite colour intersections. Unlike pawns, knights can take out pieces (at intersections).
             return result;
         }
         return 0L;
@@ -75,12 +78,38 @@ public class Pieces {
     /**
      * Provides the index of the provided {@link Piece} type in the bitboard array representing each piece.
      *
-     * @see Pieces#PIECE_BITBOARDS
      * @param targetPiece the piece for which the index should be calculated
      * @return an {@link Integer} value representing the index
+     * @see Pieces#PIECE_BITBOARDS
      */
     private int getIndex(final Piece targetPiece) {
         return Arrays.asList(Piece.values()).indexOf(targetPiece);
+    }
+
+    /**
+     * Provides the representation of all white pieces in the current setup.
+     *
+     * @return A {@link Long} value representing a bitboard
+     */
+    private long getAllWhite() {
+        long all = 0L;
+        for (short index = 0; index < PIECE_BITBOARDS.length / 2; index++) {
+            all ^= PIECE_BITBOARDS[index * 2];
+        }
+        return all;
+    }
+
+    /**
+     * Provides the representation of all black pieces in the current setup.
+     *
+     * @return A {@link Long} value representing a bitboard
+     */
+    private long getAllBlack() {
+        long all = 0L;
+        for (short index = 0; index < PIECE_BITBOARDS.length / 2; index++) {
+            all ^= PIECE_BITBOARDS[(index * 2) + 1];
+        }
+        return all;
     }
 
     /**
@@ -89,11 +118,7 @@ public class Pieces {
      * @return a {@link Long} value representing a bitboard
      */
     private long getAll() {
-        long all = 0L;
-        for (final long pieceBitboard : this.PIECE_BITBOARDS) {
-            all ^= pieceBitboard;
-        }
-        return all;
+        return getAllWhite() ^ getAllBlack();
     }
 
 }
