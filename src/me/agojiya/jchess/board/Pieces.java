@@ -46,8 +46,8 @@ public class Pieces {
             throw new IllegalArgumentException("The provided piece type was not found at the provided position");
         }
         if (targetPiece == Piece.BLACK_PAWN || targetPiece == Piece.WHITE_PAWN) {
-            final long SINGLE_STEP = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 8 : pieceBitboard >> 8,
-                    DOUBLE_STEP = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 16 : pieceBitboard >> 16;
+            final long SINGLE_STEP = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 8 : pieceBitboard >>> 8,
+                    DOUBLE_STEP = targetPiece == Piece.WHITE_PAWN ? pieceBitboard << 16 : pieceBitboard >>> 16;
             long result = SINGLE_STEP;
             if (position.getRank() == 2 || position.getRank() == 7) {
                 result ^= DOUBLE_STEP;
@@ -61,9 +61,11 @@ public class Pieces {
         } else if (targetPiece == Piece.BLACK_KNIGHT || targetPiece == Piece.WHITE_KNIGHT) {
             final long NW_SHORT = pieceBitboard << (8 - 2), NW_LONG = pieceBitboard << (8 + 7),
                     NE_SHORT = pieceBitboard << (8 + 2), NE_LONG = pieceBitboard << (8 + 9),
-                    SW_SHORT = pieceBitboard >> (8 - 2), SW_LONG = pieceBitboard >> (8 + 7),
-                    SE_SHORT = pieceBitboard >> (8 + 2), SE_LONG = pieceBitboard >> (8 + 9);
-            long result = NW_SHORT ^ NW_LONG ^ NE_SHORT ^ NE_LONG ^ SW_SHORT ^ SW_LONG ^ SE_SHORT ^ SE_LONG;
+                    SW_SHORT = pieceBitboard >>> (8 + 2), SW_LONG = pieceBitboard >>> (8 + 9),
+                    SE_SHORT = pieceBitboard >>> (8 - 2), SE_LONG = pieceBitboard >>> (8 + 7);
+            final int inlineIndex = Long.numberOfTrailingZeros(pieceBitboard) % 8;
+            long result = (inlineIndex >= 2 ? NW_SHORT ^ SW_SHORT : 0L) ^ (inlineIndex >= 1 ? NW_LONG ^ SW_LONG: 0L) ^
+                    (inlineIndex <= 5 ? NE_SHORT ^ SE_SHORT : 0L) ^ (inlineIndex <= 6 ? NE_LONG ^ SE_LONG : 0L);
             // TODO: Handle intersections. Unlike pawns, knights can take out pieces (at intersections).
             return result;
         }
